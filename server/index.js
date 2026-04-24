@@ -48,11 +48,13 @@ app.use('/api/cards', cardRoutes);
 // Serve Frontend Statically (Single IP/Port Requirement)
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/dist')));
-  app.get('*', (req, res) => {
+  // SPA fallback - catch all other routes
+  app.use((req, res) => {
     res.sendFile(path.resolve(__dirname, '../client', 'dist', 'index.html'));
   });
 } else {
   app.get('/', (req, res) => {
+    res.send('Novapay API Server Running');
   });
 }
 
