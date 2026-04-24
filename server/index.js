@@ -124,10 +124,11 @@ console.log(`🔌 Attempting to bind to port ${PORT} on 0.0.0.0...`);
 
 try {
   const server = app.listen(PORT, '0.0.0.0', () => {
-    console.log(`✅ Server successfully listening on port ${PORT}`);
-    console.log(`✅ Health endpoint: http://0.0.0.0:${PORT}/health`);
-    console.log(`✅ Root endpoint: http://0.0.0.0:${PORT}/`);
-    console.log(`✅ Server is now ACCEPTING CONNECTIONS`);
+    const actualPort = server.address().port;
+    console.log(`✅ Server successfully listening on port ${actualPort}`);
+    console.log(`✅ Health endpoint: http://0.0.0.0:${actualPort}/health`);
+    console.log(`✅ Root endpoint: http://0.0.0.0:${actualPort}/`);
+    console.log(`✅ Server is now ACCEPTING CONNECTIONS on 0.0.0.0:${actualPort}`);
   });
 
   server.on('listening', () => {
