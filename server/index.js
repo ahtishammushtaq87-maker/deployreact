@@ -43,18 +43,15 @@ app.use('/api/wallet', walletRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/cards', cardRoutes);
 
-// Serve Frontend Statically (Single IP/Port Requirement)
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/dist')));
-  // SPA fallback - catch all other routes
-  app.use((req, res) => {
-    res.sendFile(path.resolve(__dirname, '../client', 'dist', 'index.html'));
-  });
-} else {
-  app.get('/', (req, res) => {
-    res.send('Novapay API Server Running');
-  });
-}
+// Simple health check endpoint (for Railway)
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Root route - confirm API is running
+app.get('/', (req, res) => {
+  res.json({ message: 'Novapay API Server Running', environment: process.env.NODE_ENV || 'development' });
+});
 
 // Global Error Handler
 app.use((err, req, res, next) => {
