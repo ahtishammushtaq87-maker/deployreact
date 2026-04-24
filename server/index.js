@@ -26,9 +26,28 @@ app.use(cors(corsOptions));
 // Handle preflight OPTIONS requests explicitly
 app.options('*', cors(corsOptions));
 
-} else {
-  app.get('/', (req, res) => {
-    res.send('Novapay API Server Running');
+// Database Connection
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('✅ MongoDB Connected'))
+  .catch(err => console.error('❌ MongoDB Connection Error:', err));
+
+// Import Routes
+const authRoutes = require('./routes/authRoutes');
+const walletRoutes = require('./routes/walletRoutes');
+const transactionRoutes = require('./routes/transactionRoutes');
+const cardRoutes = require('./routes/cardRoutes');
+
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/wallet', walletRoutes);
+app.use('/api/transactions', transactionRoutes);
+app.use('/api/cards', cardRoutes);
+
+// Serve Frontend Statically (Production)
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../client/dist')));
+  app.use((req, res) => {
+    res.sendFile(path.resolve(__dirname, '../client', 'dist', 'index.html'));
   });
 }
 
