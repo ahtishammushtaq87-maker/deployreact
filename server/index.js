@@ -102,14 +102,42 @@ app.use((err, req, res, next) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📡 Health check: http://localhost:${PORT}/health`);
-  console.log('🌍 Environment:', process.env.NODE_ENV || 'development');
-}).on('error', (err) => {
-  console.error('❌ Failed to start server:', err.message);
-  console.error('   Possible causes:');
-  console.error('   - PORT', process.env.PORT, 'is already in use');
-  console.error('   - Insufficient permissions');
+// Start Server with error handling and delayed start to ensure DB is ready
+const startServer = () => {
+  try {
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`📡 Health check: http://localhost:${PORT}/health`);
+      console.log('🌍 Environment:', process.env.NODE_ENV || 'development');
+      console.log('✅ Server is ready to accept connections');
+    });
+  } catch (err) {
+    console.error('❌ Failed to start server:', err.message);
+    process.exit(1);
+  }
+};
+
+// Start after DB connection is confirmed
+mongoose.connection.once('open', () => {
+  console.log('✅ MongoDB connection is open - starting server...');
+  startServer();
+});
+
+// Fallback: if mongoose already connected quickly
+mongoose.connection.on('connected', () => {
+  console.log('📦 MongoDB connected');
+});
+
+// Handle connection errors
+mongoose.connection.on('error', (err) => {
+  console.error('❌ MongoDB connection error:', err);
   process.exit(1);
 });
+
+// Start server even if DB connection takes a while (but log when ready)
+setTimeout(() => {
+  if (!mongoose.connection.readyState) {
+    console.warn('⚠️ MongoDB connection taking long, starting server anyway...');
+    startServer();
+  }
+}, 5000); // Wait max 5 seconds for DB
