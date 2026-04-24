@@ -59,12 +59,19 @@ mongoose.connect(MONGODB_URI, {
   });
 
 // Import Routes (do this AFTER DB connection to ensure models are registered)
-const authRoutes = require('./routes/authRoutes');
-const walletRoutes = require('./routes/walletRoutes');
-const transactionRoutes = require('./routes/transactionRoutes');
-const cardRoutes = require('./routes/cardRoutes');
+let authRoutes, walletRoutes, transactionRoutes, cardRoutes;
 
-console.log('🔌 Routes loaded: auth, wallet, transactions, cards');
+try {
+  authRoutes = require('./routes/authRoutes');
+  walletRoutes = require('./routes/walletRoutes');
+  transactionRoutes = require('./routes/transactionRoutes');
+  cardRoutes = require('./routes/cardRoutes');
+  console.log('✅ Routes loaded successfully: auth, wallet, transactions, cards');
+} catch (err) {
+  console.error('❌ Error loading routes:', err.message);
+  console.error(err.stack);
+  // Continue anyway - some routes may be optional
+}
 
 // API Routes
 app.use('/api/auth', authRoutes);
