@@ -1,10 +1,5 @@
 {
-  "build": {
-    "env": {
-      "VITE_API_BASE_URL": "https://your-backend-url.vercel.app/api"
-    }
-  },
-  "outputDirectory": "client/dist",
+  "outputDirectory": "dist",
   "rewrites": [
     {
       "source": "/(.*)",
