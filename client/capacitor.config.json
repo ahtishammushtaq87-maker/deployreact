@@ -1,0 +1,13 @@
+{
+  "appId": "com.novapay.app",
+  "appName": "Novapay",
+  "webDir": "dist",
+  "server": {
+    "cleartext": true
+  },
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
+}
