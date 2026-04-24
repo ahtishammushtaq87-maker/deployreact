@@ -1,0 +1,9 @@
+# Railway configuration for backend service
+[build]
+builder = "nixpacks"
+buildCommand = "cd server && npm install"
+
+[deploy]
+startCommand = "cd server && npm start"
+healthcheckPath = "/api/health"
+healthcheckTimeout = 60
