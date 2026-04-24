@@ -120,17 +120,50 @@ app.use((err, req, res, next) => {
 });
 
 // Start Server Immediately
+console.log(`🔌 Attempting to bind to port ${PORT} on 0.0.0.0...`);
+
 try {
   const server = app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Server listening on port ${PORT}`);
-    console.log(`📡 Health endpoint: http://0.0.0.0:${PORT}/health`);
+    console.log(`✅ Server successfully listening on port ${PORT}`);
+    console.log(`✅ Health endpoint: http://0.0.0.0:${PORT}/health`);
+    console.log(`✅ Root endpoint: http://0.0.0.0:${PORT}/`);
+    console.log(`✅ Server is now ACCEPTING CONNECTIONS`);
+  });
+
+  server.on('listening', () => {
+    console.log(`🎯 Server is now listening on port ${server.address().port}`);
   });
 
   server.on('error', (err) => {
-    console.error('❌ Server error:', err.message);
+    console.error('❌ Server error:', err.code, err.message);
     if (err.code === 'EADDRINUSE') {
-      console.error(`   Port ${PORT} is already in use`);
+      console.error(`   Port ${PORT} is already in use by another process`);
+      console.error('   This means Railway provided PORT but something else is listening');
+    } else if (err.code === 'EACCES') {
+      console.error('   Permission denied - need higher privileges');
     }
+    process.exit(1);
+  });
+
+  server.on('connection', (socket) => {
+    console.log(`🔗 New connection accepted from ${socket.remoteAddress}:${socket.remotePort}`);
+  });
+
+} catch (err) {
+  console.error('❌ Failed to start server:', err.code, err.message);
+  console.error('   Stack:', err.stack);
+  process.exit(1);
+}
+
+// Log unhandled rejections
+process.on('unhandledRejection', (err, promise) => {
+  console.error('❌ Unhandled Rejection:', err);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('❌ Uncaught Exception:', err);
+  process.exit(1);
+});
     process.exit(1);
   });
 
