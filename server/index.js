@@ -14,14 +14,14 @@ console.log('   PORT (from env):', process.env.PORT);
 console.log('   MONGODB_URI:', process.env.MONGODB_URI ? '✅ Set' : '❌ Missing');
 console.log('   CLIENT_URL:', process.env.CLIENT_URL || 'Not set (defaulting to localhost)');
 
-const PORT = process.env.PORT || 3000; // Railway provides PORT, default 3000 for safety
+const PORT = process.env.PORT || 3000;
 
 console.log(`🚀 Starting server on port ${PORT}...`);
 
-// Middleware
+// Middleware - apply immediately
 app.use(express.json());
 
-// CORS Configuration - Allow Vercel frontend and localhost
+// CORS Configuration
 const corsOptions = {
   origin: process.env.CLIENT_URL || 'http://localhost:5174',
   credentials: true,
@@ -29,12 +29,43 @@ const corsOptions = {
   allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization', 'x-platform', 'Cookie'],
   optionsSuccessStatus: 200
 };
-
-// Apply CORS middleware (handles preflight automatically)
+// Apply CORS middleware (handles preflight automatically for all routes)
 app.use(cors(corsOptions));
 
 // Middleware to parse cookies
 app.use(cookieParser());
+
+// Health check endpoints - DEFINE BEFORE ANY OTHER ROUTES
+// These must respond instantly for Railway health checks
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development',
+    port: PORT
+  });
+});
+
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development',
+    port: PORT
+  });
+});
+
+app.get('/', (req, res) => {
+  res.status(200).json({
+    message: 'Novapay API Server Running',
+    status: 'healthy',
+    environment: process.env.NODE_ENV || 'development',
+    port: PORT,
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Database Connection - with timeout and detailed logging
 console.log('📦 Connecting to MongoDB...');
