@@ -1,9 +1,9 @@
-# Railway configuration for backend service
 [build]
 builder = "nixpacks"
-buildCommand = "cd server && npm install"
+buildCommand = "npm --prefix server install"
 
 [deploy]
-startCommand = "cd server && npm start"
+startCommand = "node server/index.js"
 healthcheckPath = "/health"
-healthcheckTimeout = 60
+healthcheckTimeout = 30
+sleepingEnabled = false
