@@ -72,13 +72,24 @@ app.use('/api/wallet', walletRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/cards', cardRoutes);
 
-// Health check endpoint (for Railway)
+// Health check endpoints (for Railway and monitoring)
+// Root health check - quick response, no DB required
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development',
-    port: PORT
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Also expose under /api/health for consistency
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
@@ -86,6 +97,7 @@ app.get('/health', (req, res) => {
 app.get('/', (req, res) => {
   res.json({ 
     message: 'Novapay API Server Running',
+    status: 'healthy',
     environment: process.env.NODE_ENV || 'development',
     port: PORT,
     timestamp: new Date().toISOString()
